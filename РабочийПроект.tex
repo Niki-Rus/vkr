@@ -1,81 +1,120 @@
 \section{Рабочий проект}
-\subsection{Классы, используемые при разработке сайта}
 
-Можно выделить следующий список классов и их методов, использованных при разработке web-приложения (таблица \ref{class:table}). Пример таблицы с уменьшенным межстрочным интервалом.
+\subsection{Спецификация программных компонентов}
 
-\renewcommand{\arraystretch}{0.8} % уменьшение расстояний до сетки таблицы
-\begin{xltabular}{\textwidth}{|X|p{2.5cm}|>{\setlength{\baselineskip}{0.7\baselineskip}}p{4.85cm}|>{\setlength{\baselineskip}{0.7\baselineskip}}p{4.85cm}|}
-\caption{Описание классов Bitrix, используемых в приложении\label{class:table}}\\
-\hline \centrow \setlength{\baselineskip}{0.7\baselineskip} Название класса & \centrow \setlength{\baselineskip}{0.7\baselineskip} Модуль, к которому относится класс & \centrow Описание класса & \centrow Методы \\
-\hline \centrow 1 & \centrow 2 & \centrow 3 & \centrow 4\\ \hline
-\endfirsthead
-\caption*{Продолжение таблицы \ref{class:table}}\\
-\hline \centrow 1 & \centrow 2 & \centrow 3 & \centrow 4\\ \hline
-\finishhead
-CMain & Главный модуль & CMain – главный класс страницы web-приложения. После одного из этапов по загрузке страницы в сценарии становится доступным инициализированный системой объект данного класса с именем \$APPLICATION & void ShowTitle(string property\_code = «title», bool strip\_tags = true)
-Выводит заголовок страницы
-void SetTitle(string title)
-Устанавливает заголовок страницы
+В данном разделе приведено детальное описание интерфейсов разработанных функций и структур данных.
 
-void ShowCSS(bool external = true, bool XhtmlStyle = true)
-Выводит таблицу стилей CSS страницы\\
-\hline CFile & Главный модуль & CFile – Класс для работы с файлами и изображениями & array GetFileArray (int file\_id)
-Метод возвращает массив, содержащий описание файла (путь к файлу, имя файла, размер) с идентификатором file\_id
-\end{xltabular}
-\renewcommand{\arraystretch}{1.0} % восстановление сетки
+\textbf{Функция расширения ключа (key-expansion)}
+\begin{itemize}
+	\item входные параметры: key — исходный ключ шифрования (вектор 16 байт);
+	\item выходные данные: вектор раундовых ключей;
+	\item назначение: генерация полного набора ключей из одного секретного ключа, необходимых для всех раундов шифрования.
+\end{itemize}
 
-\subsection{Модульное тестирование разработанного web-сайта}
+\textbf{Функция дополнения данных (pkcs7-pad)}
+\begin{itemize}
+	\item входные параметры: data — исходный вектор байтов произвольной длины;
+	\item выходные данные: новый вектор, длина которого кратна 16 байтам;
+	\item назначение: подготовка данных к блочному шифрованию путем добавления байтов-заполнителей согласно стандарту PKCS\#7.
+\end{itemize}
 
-Модульный тест для класса User из модели данных представлен на рисунке \ref{unitUser:image}.
+\textbf{Функция удаления дополнения (pkcs7-unpad)}
+\begin{itemize}
+	\item входные параметры: data — вектор расшифрованных байтов;
+	\item выходные данные: вектор байтов исходной длины;
+	\item назначение: удаление байтов-заполнителей после дешифрования для восстановления оригинального сообщения.
+\end{itemize}
 
-\begin{figure}[ht]
-\begin{lstlisting}[language=Python]
-from django.test import TestCase
-from .models import *
-User = get_user_model()
+\textbf{Функция шифрования блока (encrypt-block)}
+\begin{itemize}
+	\item входные параметры: data — блок данных (16 байт), key — ключ;
+	\item выходные данные: зашифрованный блок (16 байт);
+	\item назначение: реализация 10 раундов AES (SubBytes, ShiftRows, MixColumns, AddRoundKey).
+\end{itemize}
 
+\textbf{Функция шифрования данных (encrypt-data)}
+\begin{itemize}
+	\item входные параметры: data — вектор исходных данных произвольной длины, key — ключ;
+	\item выходные данные: вектор зашифрованных данных;
+	\item назначение: основной цикл шифрования, выполняет дополнение данных (pad), разбивку на блоки и применение функции encrypt-block.
+\end{itemize}
 
-class ShpoTestCases(TestCase):
+\textbf{Функция дешифрования блока (decrypt-block)}
+\begin{itemize}
+	\item входные параметры: data — зашифрованный блок (16 байт), key — ключ;
+	\item выходные данные: расшифрованный блок (16 байт);
+	\item назначение: реализация обратных преобразований AES для одного блока.
+\end{itemize}
 
-    def setUp(self) -> None:
-        self.user = User.objects.create(username='testtestovich', password='testtestovich', first_name='Sad', last_name='')
+\textbf{Функция дешифрования данных (decrypt-data)}
+\begin{itemize}
+	\item входные параметры: data — вектор зашифрованных данных, key — ключ;
+	\item выходные данные: вектор исходных данных;
+	\item назначение: основной цикл дешифрования, выполняет обработку блоков функцией decrypt-block и финишное удаление дополнения (unpad).
+\end{itemize}
 
-    def test_2(self):
+\textbf{Функция запуска тестов (run-tests)}
+\begin{itemize}
+	\item входные параметры: отсутствуют (используются встроенные тестовые сообщения);
+	\item выходные данные: вывод результатов в консоль (сравнение оригинальных и дешифрованных данных);
+	\item назначение: проверка корректности всей библиотеки путем шифрования и дешифрования сообщений разной длины.
+\end{itemize}
 
-        self.assertEqual(self.user.first_name, 'Sad')
-        self.assertEqual(self.user.last_name, 'Cat')
-        print((self.user))
-        print((self.user.first_name))
-        print((self.user.last_name))
-\end{lstlisting}  
-\caption{Модульный тест класса User}
-\label{unitUser:image}
+\subsection{Модульное тестирование функций библиотеки}
+
+Для проверки корректности работы алгоритма был разработан модуль тестирования run-tests. На рисунке \ref{code:tests} представлен фрагмент кода сценария тестирования (проверка длинного массива данных).
+
+\begin{figure}[H]
+	\begin{lstlisting}[language=Lisp]
+		(defun run-tests ()
+		(let ((key #(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16)))
+		
+		;; ... (Тесты 1 и 2 опущены) ...
+		
+		;; Тест 3: данные больше размера блока
+		(let* ((data #(10 20 30 40 50 60 70 80 90 100
+		110 120 130 140 150 160 170 180 190))
+		(enc (encrypt-data data key))
+		(dec (decrypt-data enc key)))
+		(print "========================")
+		(print "Test 3: long data")
+		(print "Original:") (print data)
+		(print "Encrypted:") (print enc)
+		(print "Decrypted:") (print dec)
+		(print "OK?")
+		(print (equalp data dec)))))
+	\end{lstlisting}  
+	\caption{Фрагмент кода модуля тестирования}
+	\label{code:tests}
 \end{figure}
 
-\subsection{Системное тестирование разработанного web-сайта}
+\subsection{Системное тестирование разработанной библиотеки}
 
-На рисунке \ref{main:image} представлена главная страница сайта «Русатом – Аддитивные технологии».
-\newpage % при необходимости можно переносить рисунок на новую страницу
-\begin{figure}[H] % H - рисунок обязательно здесь, или переносится, оставляя пустоту
-\center{\includegraphics[width=1\linewidth]{main1}}
-\center{\includegraphics[width=1\linewidth]{main2}}
-\center{\includegraphics[width=1\linewidth]{main3}}
-\caption{Главная страница сайта «Русатом – Аддитивные технологии»}
-\label{main:image}
+Тестирование проводилось в интерактивной среде Common Lisp (SBCL). Были проверены три сценария работы программы, покрывающие различные варианты длины входных данных.
+
+\textbf{Тест №1. Данные меньше размера блока.}
+На рисунке \ref{test1:image} показан результат обработки массива длиной 2 байта. Программа корректно дополнила данные до 16 байт (PKCS\#7), зашифровала и восстановила оригинал.
+
+\begin{figure}[H]
+	\center{\includegraphics[width=0.9\linewidth]{test_short}}
+	\caption{Результат теста №1: Данные меньше размера блока}
+	\label{test1:image}
 \end{figure}
 
-На рисунке \ref{menu:image} представлен динамический вывод заголовков, включающий в себя искомые фразы при поиске фраз.
+\textbf{Тест №2. Данные, равные размеру блока.}
+На рисунке \ref{test2:image} показан результат для данных длиной ровно 16 байт. Согласно стандарту, был добавлен новый блок заполнения.
 
-\begin{figure}[ht]
-\center{\includegraphics[width=1\linewidth]{menu}}
-\caption{Динамический вывод заголовков}
-\label{menu:image}
+\begin{figure}[H]
+	\center{\includegraphics[width=0.9\linewidth]{test_block}}
+	\caption{Результат теста №2: Данные равные размеру блока}
+	\label{test2:image}
 \end{figure}
 
-На рисунке \ref{enter:image} представлен ввод данных для публикации новости.
+\textbf{Тест №3. Данные больше размера блока.}
+На рисунке \ref{test3:image} показана обработка массива, превышающего размер блока (19 байт). Алгоритм корректно обработал данные в цикле, расшифровка совпала с оригиналом.
 
-\begin{figure}[ht]
-\center{\includegraphics[width=1\linewidth]{enter}}
-\caption{Ввод данных для публикации очень-очень длинной, интересной и полезной новости}
-\label{enter:image}
+\begin{figure}[H]
+	\center{\includegraphics[width=0.9\linewidth]{test_long}}
+	\caption{Результат теста №3: Данные больше размера блока}
+	\label{test3:image}
 \end{figure}
