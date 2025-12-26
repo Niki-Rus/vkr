@@ -1,6 +1,10 @@
-src=main.tex setup.tex Введение.tex Реферат.tex ТехЗадание.tex Анализ.tex ТехПроект.tex ТитульныйЛист.tex ТитульныйЛистПрактика.tex Обозначения.tex РабочийПроект.tex Заключение.tex СписокИсточников.tex ЛистЗадания.tex Содержание.tex Плакаты.tex Код.tex vkr.cls
+SRC = structure.lsp key-module.lsp encryption.lsp decryption.lsp tests.lsp
 
-all: main.pdf
+all:
+	cat $(SRC) > /tmp/all.lsp
+	sbcl --script /tmp/all.lsp
 
-main.pdf: $(src)
-	xelatex $(src)
+clean:
+	rm -f /tmp/all.lsp
+
+
