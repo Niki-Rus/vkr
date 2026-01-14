@@ -47,7 +47,14 @@
 		\label{fig:mixcolumns}
 	\end{figure}
 	
-	\item \textbf{AddRoundKey (Добавление раундового ключа).} Побитовое сложение (XOR) текущего состояния с раундовым ключом.
+	\item \textbf{AddRoundKey (Добавление раундового ключа).} Побитовое сложение (XOR) текущего состояния с раундовым ключом. Схема операции показана на рисунке \ref{fig:addroundkey}.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.6\linewidth]{aes_addroundkey}
+		\caption{Схема преобразования AddRoundKey}
+		\label{fig:addroundkey}
+	\end{figure}
 \end{enumerate}
 
 В последнем раунде исключается операция MixColumns. Дешифрование реализовано как выполнение обратных операций в обратном порядке.
